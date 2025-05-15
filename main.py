@@ -1,27 +1,21 @@
 # main.py
+# inspired by https://github.com/kevinmcaleer/ota
 
 import machine
 import urequests as requests
 import json
 import time
 
-# === CONFIG ===
+# Declare links to version and code files
 RAW_VERSION_URL = "https://raw.githubusercontent.com/Huw311/pico_ota/refs/heads/main/version.json"
 RAW_MAIN_URL    = "https://raw.githubusercontent.com/Huw311/pico_ota/refs/heads/main/main.py"
 CHECK_INTERVAL = 10  # seconds
 
-# === Blink Setup ===
+# Set up LED and turn it on
 led = machine.Pin("LED", machine.Pin.OUT)
+led.off()  # Turn LED on and leave it on
 
-def blink(n=1, delay=10):
-    print(f"Blinking {n} times with {delay}s delay.")
-    for _ in range(n):
-        led.on()
-        time.sleep(delay)
-        led.off()
-        time.sleep(delay)
-
-# === Version Handling ===
+# Version Handling
 def get_local_version():
     print("Fetching local version...")
     try:
@@ -40,7 +34,7 @@ def get_remote_version():
         res = requests.get(RAW_VERSION_URL)
         print(f"Response Status Code: {res.status_code}")
         if res.status_code == 200:
-            data = res.json()  # Parse JSON response
+            data = res.json()
             version = data.get("version", "0.0.0")
             print(f"Remote version: {version}")
             return version
@@ -62,7 +56,6 @@ def update_code():
         else:
             print(f"Error: Received non-200 status code {res.status_code} while fetching main.py")
 
-        # Fetch and save the new version info
         res = requests.get(RAW_VERSION_URL)
         print(f"Response Status Code for version.json: {res.status_code}")
         if res.status_code == 200:
@@ -78,13 +71,10 @@ def update_code():
     except Exception as e:
         print(f"Update failed: {e}")
 
-# === Main Loop ===
+# Main Loop
 while True:
     print("Starting the main loop...")
-    # Blink LED and check versions periodically
-    for _ in range(CHECK_INTERVAL):
-        blink(1, delay = 10)
-        time.sleep(0.9)
+    time.sleep(CHECK_INTERVAL)
     local = get_local_version()
     remote = get_remote_version()
     print(f"Local version: {local}, Remote version: {remote}")
@@ -93,4 +83,3 @@ while True:
         update_code()
     else:
         print("Versions are the same, no update required.")
-
