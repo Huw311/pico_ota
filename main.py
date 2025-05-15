@@ -13,7 +13,7 @@ CHECK_INTERVAL = 10  # seconds
 
 # Set up LED and turn it on
 led = machine.Pin("LED", machine.Pin.OUT)
-led.on()  # Turn LED on and leave it on
+led.off()  # Turn LED on and leave it on
 
 # Version Handling
 def get_local_version():
